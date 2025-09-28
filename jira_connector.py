@@ -141,9 +141,7 @@ def connect_to_jira(server: str, email: str, api_token: str, timeout: int = 30) 
         An authenticated `JIRA` client instance.
 
     Raises:
-        requests.exceptions.RequestException: Network related errors (DNS, timeout, etc.).
-        PermissionError: When authentication fails.
-        JIRAError: Other JIRA related errors.
+        ConnectionError: If authentication or connection fails.
     """
     logging.info("Attempting to connect to Jira server at %s", server)
 
@@ -156,23 +154,18 @@ def connect_to_jira(server: str, email: str, api_token: str, timeout: int = 30) 
         )
 
         # Validate by fetching the current user (non-destructive)
-        current_user = jira_client.current_user()
-        server_info = jira_client.server_info()
+        jira_client.current_user()
 
-        logging.info("Connection successful. Current user: %s. Jira version: %s", current_user, server_info.get("version"))
+        logging.info("Connection successful.")
         return jira_client
 
-    except JIRAError as e:
+    except (JIRAError, requests.exceptions.RequestException) as e:
         # JIRAError covers many API-level errors including auth failures
-        status_code = getattr(e, 'status_code', None)
-        logging.error("JIRAError while connecting: %s", e, exc_info=True)
-        if status_code in (401, 403):
-            raise PermissionError("Authentication failed. Check JIRA_USER_EMAIL and JIRA_API_TOKEN.") from e
-        raise
-    except requests.exceptions.RequestException as e:
-        # network-related problems (timeout, DNS failures, connection errors)
-        logging.error("Network error when connecting to Jira: %s", e, exc_info=True)
-        raise
+        # requests.exceptions.RequestException covers network-related problems
+        logging.error("Error while connecting to Jira: %s", e, exc_info=True)
+        if isinstance(e, JIRAError) and e.status_code in (401, 403):
+            raise ConnectionError("Authentication failed. Check JIRA_USER and JIRA_API_TOKEN.") from e
+        raise ConnectionError(f"Failed to connect to Jira: {e}") from e
 
 
 def main() -> int:
@@ -210,16 +203,8 @@ def main() -> int:
         client = connect_to_jira(cfg["server"], cfg["email"], cfg["api_token"])
         print("Jira connection successful.")
         return 0
-    except PermissionError as e:
-        print("Authentication failed: please verify your email and API token in the .env file.")
-        logging.error("%s", e, exc_info=True)
-        return 1
-    except requests.exceptions.RequestException as e:
-        print(f"Network error when connecting to Jira: {e}")
-        logging.error("%s", e, exc_info=True)
-        return 1
-    except JIRAError as e:
-        print(f"Jira API error: {e}")
+    except ConnectionError as e:
+        print(f"Connection failed: {e}")
         logging.error("%s", e, exc_info=True)
         return 1
     except Exception as e:

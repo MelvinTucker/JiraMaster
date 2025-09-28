@@ -1,59 +1,60 @@
 """list_support_requests.py
 ==========================
 
-A utility to connect to a Jira instance, search for the last 10 created
-'Support Request' issues using a JQL query, and print the results to the
-console with enhanced visual formatting using the 'rich' library.
-
-This script uses Loguru for logging, python-dotenv for configuration
-management, and the jira library to interact with the Jira API.
+Connects to Jira, fetches recent 'Support Request' issues with .msg attachments,
+generates an AI summary for each issue's description using a local LM Studio
+instance, and prints the results to the console.
 
 Core Features:
-- Securely loads credentials and a JQL query from a .env file.
-- Connects to a Jira instance.
-- Searches for issues using the provided JQL.
-- Prints a formatted list of issues (ID and Summary) to the console.
-- Handles errors gracefully, including invalid JQL queries.
-- Provides colorized console logging and file-based logging via Loguru.
+- Securely loads credentials for Jira and settings for an OpenAI-compatible API.
+- Tests the connection to the local AI model server before proceeding.
+- Fetches the 50 most recent support requests.
+- Filters issues to find those with .msg attachments.
+- For each filtered issue, generates a concise summary of its description using a local AI model.
+- Displays the results in a clean, readable format using rich panels.
+- Provides robust, colorized logging via Loguru.
 
 Dependencies:
     - jira
     - python-dotenv
     - loguru
     - rich
+    - openai
 
 Usage:
-    Ensure a `.env` file exists with the required variables. Then run:
-
+    1. Ensure your local AI model server (e.g., LM Studio) is running.
+    2. Ensure a `.env` file exists with the required variables.
+    3. Run the script:
         python list_support_requests.py
 """
 
 import os
 import sys
+import tempfile
+import extract_msg
 
 from dotenv import load_dotenv
-from jira import JIRA
-from jira.exceptions import JIRAError
 from loguru import logger
+from openai import OpenAI
 from rich.console import Console
-from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
 import requests
 
 # --- Configuration ---
 LOG_FILE = "list_support_requests.log"
 
+
 # --- Functions ---
 
 def configure_logging():
-    """
-    Configures Loguru to log to both console and a file.
-    """
-    logger.remove()  # Remove default handler
+    """Configures Loguru for console and file logging."""
+    logger.remove()
     logger.add(
         sys.stderr,
         level="INFO",
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-        colorize=True
+        colorize=True,
     )
     logger.add(
         LOG_FILE,
@@ -63,15 +64,16 @@ def configure_logging():
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
         enqueue=True,
         backtrace=True,
-        diagnose=True
+        diagnose=True,
     )
+
 
 def load_configuration() -> dict:
     """
-    Loads Jira configuration from the .env file.
+    Loads Jira and LM Studio configuration from the .env file.
 
     Returns:
-        A dictionary with 'url', 'user', 'api_token', and 'jql_query'.
+        A dictionary containing all required configuration variables.
 
     Raises:
         EnvironmentError: If any required environment variables are missing.
@@ -83,7 +85,10 @@ def load_configuration() -> dict:
         "url": os.getenv("JIRA_URL"),
         "user": os.getenv("JIRA_USER"),
         "api_token": os.getenv("JIRA_API_TOKEN"),
-        "jql_query": os.getenv("JIRA_JQL_QUERY")
+        "jql_query": os.getenv("JIRA_JQL_QUERY"),
+        "lm_studio_base_url": os.getenv("LM_STUDIO_BASE_URL"),
+        "lm_studio_api_key": os.getenv("LM_STUDIO_API_KEY"),
+        "lm_studio_model": os.getenv("LM_STUDIO_MODEL"),
     }
 
     missing = [key.upper() for key, value in config_vars.items() if not value]
@@ -95,70 +100,229 @@ def load_configuration() -> dict:
     logger.success("Configuration loaded successfully.")
     return config_vars
 
-    # This function is no longer needed for the primary logic of this script,
-    # but is kept for potential future use or as a reference.
-    pass
 
-def search_and_print_issues(url: str, user: str, api_token: str, jql_query: str):
+def test_lm_studio_connection(base_url: str, api_key: str) -> OpenAI:
     """
-    Searches for Jira issues using a direct `requests` call to the v3 API,
-    filters for issues with .msg attachments, and prints them to the console.
+    Tests the connection to the LM Studio server and returns a client.
 
     Args:
-        url: The base URL of the Jira instance.
-        user: The email address or username for authentication.
-        api_token: The API token for authentication.
-        jql_query: The JQL query string to execute.
+        base_url: The base URL of the LM Studio server.
+        api_key: The API key for the server.
+
+    Returns:
+        An initialized OpenAI client if the connection is successful.
+
+    Raises:
+        ConnectionError: If the client cannot connect or list models.
+    """
+    logger.info(f"Testing connection to LM Studio at {base_url}...")
+    try:
+        client = OpenAI(base_url=base_url, api_key=api_key)
+        
+        # A simple check to verify connectivity and get server models
+        response = client.models.list()
+        
+        # Log the models found for debugging purposes
+        model_names = [model.id for model in response.data]
+        logger.debug(f"Found models on LM Studio server: {model_names}")
+        
+        logger.success("LM Studio connection successful.")
+        return client
+    except Exception as e:
+        # Log the full error with traceback for better diagnostics
+        logger.error(f"Failed to connect to LM Studio server. Is it running? Full error: {e}", exc_info=True)
+        
+        # Attempt to provide a more specific error message
+        error_details = str(e)
+        if "Failed to parse" in error_details or "Expecting value" in error_details:
+            error_msg = (
+                "Failed to connect to LM Studio: The server returned an invalid response. "
+                "This might be an HTML error page instead of a JSON response. "
+                "Please check the LM Studio server logs."
+            )
+        else:
+            error_msg = f"Failed to connect to LM Studio server. Is it running? Error: {e}"
+            
+        logger.critical(error_msg)
+        raise ConnectionError(error_msg) from e
+
+
+def get_description_text(description_field: dict) -> str:
+    """
+    Safely extracts the text content from a Jira rich text description field.
+
+    Args:
+        description_field: The 'description' field from the Jira API response.
+
+    Returns:
+        The concatenated text from the description, or a default message if empty.
+    """
+    if not description_field or 'content' not in description_field:
+        return "No description available."
+
+    text_parts = []
+    try:
+        for block in description_field.get('content', []):
+            if 'content' in block:
+                for item in block.get('content', []):
+                    if 'text' in item:
+                        text_parts.append(item['text'])
+        
+        full_text = "\n".join(text_parts).strip()
+        return full_text if full_text else "No description available."
+    except (TypeError, IndexError) as e:
+        logger.warning(f"Could not parse description field, returning empty. Error: {e}")
+        return "No description available."
+
+
+def get_summary_from_lm_studio(client: OpenAI, model: str, description: str) -> str:
+    """
+    Generates a summary of a Jira issue description using the local AI model.
+
+    Args:
+        client: An authenticated OpenAI client.
+        model: The model name to use for the completion.
+        description: The Jira issue description text.
+
+    Returns:
+        The AI-generated summary as a string, or an error message.
+    """
+    if not description or not description.strip():
+        return "No text provided to summarize."
+
+    logger.info(f"Generating summary with model '{model}'...")
+    try:
+        completion = client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are Melvin Tucker, an expert technical support analyst. Your task is to provide a concise, narrative summary of the following text, speaking in the first person as if you are explaining your findings.",
+                },
+                {"role": "user", "content": description},
+            ],
+            temperature=0.7,
+        )
+        summary = completion.choices[0].message.content
+        logger.success("Successfully generated summary.")
+        return summary.strip() if summary else "Summary was empty."
+    except Exception as e:
+        logger.error(f"Failed to generate summary from LM Studio: {e}")
+        return f"Error generating summary: {e}"
+
+
+def process_issues(config: dict, lm_client: OpenAI) -> list[dict]:
+    """
+    Searches for Jira issues, downloads attachments, generates summaries,
+    and returns a list of processed issue data.
+
+    Args:
+        config: The application configuration dictionary.
+        lm_client: The initialized OpenAI client for summarization.
+
+    Returns:
+        A list of dictionaries, where each dictionary contains the
+        issue key, title, and the two generated summaries.
     """
     console = Console()
-    logger.info(f"Searching for issues with JQL: '{jql_query}' using direct 'requests' call.")
+    processed_data = []
+    logger.info(f"Searching for issues with JQL: '{config['jql_query']}'...")
 
-    search_url = f"{url}/rest/api/3/search/jql"
-    auth = (user, api_token)
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    }
+    search_url = f"{config['url']}/rest/api/3/search/jql"
+    auth = (config["user"], config["api_token"])
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
     payload = {
-        "jql": jql_query,
-        "maxResults": 50,  # Fetch 50 most recent issues
-        "fields": ["summary", "status", "created", "attachment"]  # Ensure attachment field is requested
+        "jql": config["jql_query"],
+        "maxResults": 50,
+        "fields": ["summary", "attachment", "description"],
     }
 
     try:
-        response = requests.post(search_url, headers=headers, auth=auth, json=payload, timeout=30)
-        response.raise_for_status()  # Raises HTTPError for bad responses (4xx or 5xx)
-
+        response = requests.post(
+            search_url, headers=headers, auth=auth, json=payload, timeout=30
+        )
+        response.raise_for_status()
         issues = response.json().get("issues", [])
 
-        # Filter issues for .msg attachments
-        filtered_issues = []
+        issues_with_msg = []
         for issue in issues:
             attachments = issue.get("fields", {}).get("attachment", [])
-            if any(att.get("filename", "").lower().endswith(".msg") for att in attachments):
-                filtered_issues.append(issue)
-        
-        logger.info(f"Found {len(issues)} issues, filtered down to {len(filtered_issues)} with .msg attachments.")
+            msg_attachments = [
+                att for att in attachments if att.get("filename", "").lower().endswith(".msg")
+            ]
+            if msg_attachments:
+                issue['msg_attachment'] = msg_attachments[0]
+                issues_with_msg.append(issue)
 
-        if not filtered_issues:
-            console.print("\n[yellow]No recent support requests with .msg attachments found.[/yellow]\n")
-            return
+        logger.info(
+            f"Found {len(issues)} issues, filtered down to {len(issues_with_msg)} with .msg attachments."
+        )
 
-        table = Table(title="Support Requests with .msg Attachments", show_header=True, header_style="bold magenta")
-        table.add_column("Issue Key", style="dim", width=12)
-        table.add_column("Summary")
-        table.add_column("Status", justify="right")
-        table.add_column("Created", justify="right")
+        if not issues_with_msg:
+            console.print(
+                "\n[yellow]No recent support requests with .msg attachments found.[/yellow]\n"
+            )
+            return processed_data
 
-        for issue in filtered_issues:
+        for issue in issues_with_msg:
             fields = issue.get("fields", {})
             key = issue.get("key")
-            summary = fields.get("summary", "No summary")
-            status = fields.get("status", {}).get("name", "N/A")
-            created = fields.get("created", "N/A").split("T")[0]
-            table.add_row(key, summary, status, created)
+            summary_title = fields.get("summary", "No summary")
+            description = get_description_text(fields.get("description"))
 
-        console.print(table)
+            desc_summary = get_summary_from_lm_studio(
+                client=lm_client,
+                model=config["lm_studio_model"],
+                description=description,
+            )
+
+            email_summary = "Could not process email attachment."
+            attachment_meta = issue['msg_attachment']
+            attachment_url = attachment_meta.get("content")
+            
+            if attachment_url:
+                tmp_file_path = None
+                try:
+                    logger.info(f"Downloading attachment: {attachment_meta.get('filename')}")
+                    att_response = requests.get(attachment_url, auth=auth, timeout=30)
+                    att_response.raise_for_status()
+
+                    # Create a temporary file but keep it closed so other processes can access it on Windows.
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".msg") as tmp:
+                        tmp.write(att_response.content)
+                        tmp_file_path = tmp.name
+                    
+                    logger.info(f"Parsing email content from temporary file: {tmp_file_path}")
+                    msg = None
+                    try:
+                        msg = extract_msg.Message(tmp_file_path)
+                        email_body = msg.body
+                        
+                        email_summary = get_summary_from_lm_studio(
+                            client=lm_client,
+                            model=config["lm_studio_model"],
+                            description=email_body,
+                        )
+                    finally:
+                        if msg and hasattr(msg, 'close'):
+                            msg.close() # Ensure the file handle is released by extract-msg
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Failed to download attachment for {key}: {e}")
+                    email_summary = "Error: Failed to download attachment."
+                except Exception as e:
+                    logger.error(f"Failed to parse .msg file for {key}: {e}", exc_info=True)
+                    email_summary = "Error: Failed to parse email file."
+                finally:
+                    # Manually clean up the temporary file
+                    if tmp_file_path and os.path.exists(tmp_file_path):
+                        os.remove(tmp_file_path)
+            
+            processed_data.append({
+                "key": key,
+                "title": summary_title,
+                "desc_summary": desc_summary,
+                "email_summary": email_summary,
+            })
 
     except requests.exceptions.HTTPError as e:
         error_text = e.response.text
@@ -171,31 +335,40 @@ def search_and_print_issues(url: str, user: str, api_token: str, jql_query: str)
         logger.error(error_msg)
         console.print(f"\n[bold red]Error:[/bold red] {error_msg}")
         sys.exit(1)
+        
+    return processed_data
+
 
 def main():
-    """
-    Main execution function for the script.
-    """
+    """Main execution function for the script."""
     configure_logging()
+    console = Console()
     try:
         config = load_configuration()
-        # We no longer need to create a jira client for this script's main function.
-        # We pass the config directly to the search function.
-        search_and_print_issues(
-            url=config["url"],
-            user=config["user"],
-            api_token=config["api_token"],
-            jql_query=config["jql_query"]
+
+        lm_client = test_lm_studio_connection(
+            base_url=config["lm_studio_base_url"], api_key=config["lm_studio_api_key"]
         )
 
-    except EnvironmentError as e:
-        console = Console()
+        processed_issues = process_issues(config, lm_client)
+
+        for issue_data in processed_issues:
+            title = f"[bold magenta]{issue_data['key']}[/bold magenta] - {issue_data['title']}"
+            summary_text = Text()
+            summary_text.append("AI Summary (Description): ", style="cyan")
+            summary_text.append(f"{issue_data['desc_summary']}\n", style="italic")
+            summary_text.append("AI Summary (Email): ", style="cyan")
+            summary_text.append(issue_data['email_summary'], style="italic")
+            console.print(Panel(summary_text, title=title, border_style="green", expand=False))
+
+    except (EnvironmentError, ConnectionError) as e:
         console.print(f"\n[bold red]Error:[/bold red] {e}")
         sys.exit(1)
     except Exception as e:
         logger.exception("An unexpected error occurred during execution.")
+        console.print(f"\n[bold red]An unexpected error occurred. Check {LOG_FILE} for details.[/bold red]")
         sys.exit(1)
-    
+
     return 0
 
 

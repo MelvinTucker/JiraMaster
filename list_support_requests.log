@@ -1,191 +1,240 @@
-2025-09-28 16:15:08 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:15:08 | CRITICAL | __main__:load_configuration:92 - Missing required environment variables: JQL_QUERY
-2025-09-28 16:15:44 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:15:44 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:15:44 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:15:45 | SUCCESS  | __main__:create_jira_client:117 - Jira connection successful.
-2025-09-28 16:15:45 | INFO     | __main__:search_and_print_issues:135 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC'
-2025-09-28 16:15:46 | ERROR    | __main__:search_and_print_issues:153 - Invalid JQL query or permission error: The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046
-2025-09-28 16:15:46 | ERROR    | __main__:main:176 - An unexpected error occurred.
-Traceback (most recent call last):
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 138, in search_and_print_issues
-    issues = client.search_issues(jql_query, maxResults=MAX_RESULTS)
-
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\client.py", line 3149, in search_issues
-    issues = self._fetch_pages(
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\client.py", line 737, in _fetch_pages
-    resource = self._get_json(
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\client.py", line 3932, in _get_json
-    else self._session.get(url, params=params)
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\requests\sessions.py", line 602, in get
-    return self.request("GET", url, **kwargs)
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\resilientsession.py", line 247, in request
-    elif raise_on_error(response, **processed_kwargs):
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\resilientsession.py", line 72, in raise_on_error
-    raise JIRAError(
-
-jira.exceptions.JIRAError: JiraError HTTP 410 url: https://stateofdelaware.atlassian.net/rest/api/2/search?jql=issuetype+%3D+%22Support+Request%22+ORDER+BY+created+DESC&startAt=0&validateQuery=True&fields=%2Aall&maxResults=10
-	text: The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046
-	
-	response headers = {'Content-Type': 'application/json;charset=UTF-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Date': 'Sun, 28 Sep 2025 20:15:46 GMT', 'Server': 'AtlassianEdge', 'Timing-Allow-Origin': '*', 'X-Arequestid': 'd3f07a103ea4f17a1e63865103c8b662', 'X-Aaccountid': '712020%3A37dab93e-577c-4d66-bb23-3a8ee98a8ca1', 'Cache-Control': 'no-cache, no-store, no-transform', 'X-Beta-Ratelimit-Limit': '350', 'X-Beta-Ratelimit-Remaining': '348', 'X-Content-Type-Options': 'nosniff', 'X-Xss-Protection': '1; mode=block', 'Atl-Traceid': '4682b97f84594677a7eb51985a2a3708', 'Atl-Request-Id': '4682b97f-8459-4677-a7eb-51985a2a3708', 'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload', 'Report-To': '{"endpoints": [{"url": "https://dz8aopenkvv6s.cloudfront.net"}], "group": "endpoint-1", "include_subdomains": true, "max_age": 600}', 'Nel': '{"failure_fraction": 0.001, "include_subdomains": true, "max_age": 600, "report_to": "endpoint-1"}', 'Server-Timing': 'atl-edge;dur=64,atl-edge-internal;dur=17,atl-edge-upstream;dur=47,atl-edge-pop;desc="aws-us-west-2"', 'X-Cache': 'Error from cloudfront', 'Via': '1.1 4182a074185cd4c9b91519add9c7edf6.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'IAD55-P6', 'X-Amz-Cf-Id': 'DTrRCHXATNaI5SIDlZxaEmSFMP4-uhVUV_NTzf7Y1Ea2I0DvORiamA=='}
-	response text = {"errorMessages":["The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046"],"errors":{}}
-
-
-During handling of the above exception, another exception occurred:
-
-
-Traceback (most recent call last):
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 182, in <module>
-    main()
-
-> File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 169, in main
-    search_and_print_issues(jira_client, config["jql_query"])
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 154, in search_and_print_issues
-    console.print(f"\n[bold red]Error:[/bold red] {error_msg}", file=sys.stderr)
-
-TypeError: Console.print() got an unexpected keyword argument 'file'
-2025-09-28 16:15:59 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:15:59 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:15:59 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:16:01 | SUCCESS  | __main__:create_jira_client:117 - Jira connection successful.
-2025-09-28 16:16:01 | INFO     | __main__:search_and_print_issues:135 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC'
-2025-09-28 16:16:01 | ERROR    | __main__:search_and_print_issues:153 - Invalid JQL query or permission error: The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046
-2025-09-28 16:16:01 | ERROR    | __main__:main:176 - An unexpected error occurred.
-Traceback (most recent call last):
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 138, in search_and_print_issues
-    issues = client.search_issues(jql_query, maxResults=MAX_RESULTS)
-
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\client.py", line 3149, in search_issues
-    issues = self._fetch_pages(
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\client.py", line 737, in _fetch_pages
-    resource = self._get_json(
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\client.py", line 3932, in _get_json
-    else self._session.get(url, params=params)
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\requests\sessions.py", line 602, in get
-    return self.request("GET", url, **kwargs)
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\resilientsession.py", line 247, in request
-    elif raise_on_error(response, **processed_kwargs):
-  File "C:\Users\Melvi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\jira\resilientsession.py", line 72, in raise_on_error
-    raise JIRAError(
-
-jira.exceptions.JIRAError: JiraError HTTP 410 url: https://stateofdelaware.atlassian.net/rest/api/2/search?jql=issuetype+%3D+%22Support+Request%22+ORDER+BY+created+DESC&startAt=0&validateQuery=True&fields=%2Aall&maxResults=10
-	text: The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046
-	
-	response headers = {'Content-Type': 'application/json;charset=UTF-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Date': 'Sun, 28 Sep 2025 20:16:01 GMT', 'Server': 'AtlassianEdge', 'Timing-Allow-Origin': '*', 'X-Arequestid': '8cbafd2cc337b38767191a427c05cdb7', 'X-Aaccountid': '712020%3A37dab93e-577c-4d66-bb23-3a8ee98a8ca1', 'Cache-Control': 'no-cache, no-store, no-transform', 'X-Beta-Ratelimit-Limit': '350', 'X-Beta-Ratelimit-Remaining': '349', 'X-Content-Type-Options': 'nosniff', 'X-Xss-Protection': '1; mode=block', 'Atl-Traceid': '0b10d154cf8443329320fa788405503e', 'Atl-Request-Id': '0b10d154-cf84-4332-9320-fa788405503e', 'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload', 'Report-To': '{"endpoints": [{"url": "https://dz8aopenkvv6s.cloudfront.net"}], "group": "endpoint-1", "include_subdomains": true, "max_age": 600}', 'Nel': '{"failure_fraction": 0.001, "include_subdomains": true, "max_age": 600, "report_to": "endpoint-1"}', 'Server-Timing': 'atl-edge;dur=53,atl-edge-internal;dur=15,atl-edge-upstream;dur=38,atl-edge-pop;desc="aws-us-west-2"', 'X-Cache': 'Error from cloudfront', 'Via': '1.1 18b166dfa940f943140faba723d2826c.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'IAD61-P8', 'X-Amz-Cf-Id': 'HjiMmpat9P7-iA5c6asMY5pABIaWW9sZ4vNjuh9i1rhch3AIF0eTkQ=='}
-	response text = {"errorMessages":["The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046"],"errors":{}}
-
-
-During handling of the above exception, another exception occurred:
-
-
-Traceback (most recent call last):
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 182, in <module>
-    main()
-
-> File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 169, in main
-    search_and_print_issues(jira_client, config["jql_query"])
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 154, in search_and_print_issues
-    console.print(f"\n[bold red]Error:[/bold red] {error_msg}", file=sys.stderr)
-
-TypeError: Console.print() got an unexpected keyword argument 'file'
-2025-09-28 16:17:37 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:17:37 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:17:37 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:17:38 | SUCCESS  | __main__:create_jira_client:119 - Jira connection successful.
-2025-09-28 16:17:38 | INFO     | __main__:search_and_print_issues:137 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC'
-2025-09-28 16:17:39 | ERROR    | __main__:search_and_print_issues:155 - Invalid JQL query or permission error: The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046
-2025-09-28 16:21:58 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:21:58 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:21:58 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:21:59 | SUCCESS  | __main__:create_jira_client:124 - Jira connection successful.
-2025-09-28 16:21:59 | INFO     | __main__:search_and_print_issues:142 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC'
-2025-09-28 16:21:59 | ERROR    | __main__:search_and_print_issues:160 - Invalid JQL query or permission error: The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046
-2025-09-28 16:29:40 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:29:40 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:29:40 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:29:41 | ERROR    | __main__:create_jira_client:131 - Failed to connect to Jira: JiraError HTTP 400 url: https://stateofdelaware.atlassian.net/rest/api/3/mypermissions
-	text: The 'permissions' query parameter is required.
-	
-	response headers = {'Content-Type': 'application/json;charset=UTF-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Date': 'Sun, 28 Sep 2025 20:29:41 GMT', 'Server': 'AtlassianEdge', 'Timing-Allow-Origin': '*', 'X-Arequestid': 'c4ec6d876fb8dc903c53be4764f4ed94', 'X-Aaccountid': '712020%3A37dab93e-577c-4d66-bb23-3a8ee98a8ca1', 'Cache-Control': 'no-cache, no-store, no-transform', 'X-Beta-Ratelimit-Limit': '350', 'X-Beta-Ratelimit-Remaining': '348', 'X-Content-Type-Options': 'nosniff', 'X-Xss-Protection': '1; mode=block', 'Atl-Traceid': '7a206f9f6e6a4c4e8cb135c21125c41b', 'Atl-Request-Id': '7a206f9f-6e6a-4c4e-8cb1-35c21125c41b', 'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload', 'Report-To': '{"endpoints": [{"url": "https://dz8aopenkvv6s.cloudfront.net"}], "group": "endpoint-1", "include_subdomains": true, "max_age": 600}', 'Nel': '{"failure_fraction": 0.001, "include_subdomains": true, "max_age": 600, "report_to": "endpoint-1"}', 'Server-Timing': 'atl-edge;dur=57,atl-edge-internal;dur=16,atl-edge-upstream;dur=41,atl-edge-pop;desc="aws-us-west-2"', 'X-Cache': 'Error from cloudfront', 'Via': '1.1 2b66eab7f27c182ef8aa24b0c1440e9a.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'IAD89-P4', 'X-Amz-Cf-Id': '21tkqGVhVZOp5dHRSgndcOH7ZCZSWIcL0IsFt-wEYUQn-bI8CqNFqA=='}
-	response text = {"errorMessages":["The 'permissions' query parameter is required."],"errors":{}}
-2025-09-28 16:30:39 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:30:39 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:30:39 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:30:39 | SUCCESS  | __main__:create_jira_client:126 - Jira connection successful.
-2025-09-28 16:30:39 | INFO     | __main__:search_and_print_issues:145 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC'
-2025-09-28 16:30:40 | ERROR    | __main__:search_and_print_issues:163 - Invalid JQL query or permission error: The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046
-2025-09-28 16:31:31 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:31:31 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:31:31 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:31:31 | ERROR    | __main__:main:185 - An unexpected error occurred.
-Traceback (most recent call last):
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 191, in <module>
-    main()
-
-> File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 173, in main
-    jira_client = create_jira_client(
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 117, in create_jira_client
-    jira_client = JIRA(
-
-TypeError: JIRA.__init__() got an unexpected keyword argument 'rest_api_version'
-2025-09-28 16:34:23 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:34:23 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:34:23 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:34:24 | SUCCESS  | __main__:create_jira_client:124 - Jira connection successful.
-2025-09-28 16:34:24 | INFO     | __main__:search_and_print_issues:144 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct API v3 call.
-2025-09-28 16:34:24 | ERROR    | __main__:main:198 - An unexpected error occurred.
-Traceback (most recent call last):
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 204, in <module>
-    main()
-
-> File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 191, in main
-    search_and_print_issues(jira_client, config["jql_query"])
-
-  File "E:\MyVisualCodeProjects\JiraMaster\list_support_requests.py", line 154, in search_and_print_issues
-    response_data = client._post('search', json=payload)
-
-AttributeError: 'JIRA' object has no attribute '_post'
-2025-09-28 16:35:07 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:35:07 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:35:07 | INFO     | __main__:create_jira_client:113 - Attempting to connect to Jira at https://stateofdelaware.atlassian.net...
-2025-09-28 16:35:08 | SUCCESS  | __main__:create_jira_client:124 - Jira connection successful.
-2025-09-28 16:35:08 | INFO     | __main__:search_and_print_issues:144 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct API v3 call.
-2025-09-28 16:35:09 | ERROR    | __main__:search_and_print_issues:188 - Invalid JQL query or permission error: The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046
-2025-09-28 16:36:07 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:36:07 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:36:07 | INFO     | __main__:search_and_print_issues:114 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct 'requests' call.
-2025-09-28 16:36:08 | ERROR    | __main__:search_and_print_issues:154 - Jira API v2 deprecation error encountered despite using v3 URL. Raw response: {"errorMessages":["The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046"],"errors":{}}
-2025-09-28 16:36:34 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:36:34 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:36:34 | INFO     | __main__:search_and_print_issues:114 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct 'requests' call.
-2025-09-28 16:53:26 | INFO     | list_support_requests:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:53:26 | SUCCESS  | list_support_requests:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:53:26 | INFO     | list_support_requests:search_and_print_issues:114 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct 'requests' call.
-2025-09-28 16:56:56 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 16:56:56 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 16:56:56 | INFO     | __main__:search_and_print_issues:114 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct 'requests' call.
-2025-09-28 17:04:31 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 17:04:31 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 17:04:31 | INFO     | __main__:search_and_print_issues:114 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct 'requests' call.
-2025-09-28 17:04:32 | ERROR    | __main__:search_and_print_issues:166 - HTTP error during search: 410 Gone. Response: {"errorMessages":["The requested API has been removed. Please migrate to the /rest/api/3/search/jql API. A full migration guideline is available at https://developer.atlassian.com/changelog/#CHANGE-2046"],"errors":{}}
-2025-09-28 17:05:44 | INFO     | list_support_requests:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 17:05:44 | SUCCESS  | list_support_requests:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 17:05:44 | INFO     | list_support_requests:search_and_print_issues:114 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct 'requests' call.
-2025-09-28 17:05:45 | INFO     | list_support_requests:search_and_print_issues:141 - Found 50 issues, filtered down to 38 with .msg attachments.
-2025-09-28 17:06:55 | INFO     | list_support_requests:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 17:06:55 | SUCCESS  | list_support_requests:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 17:06:55 | INFO     | list_support_requests:search_and_print_issues:114 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct 'requests' call.
-2025-09-28 17:06:56 | INFO     | list_support_requests:search_and_print_issues:141 - Found 50 issues, filtered down to 38 with .msg attachments.
-2025-09-28 17:07:25 | INFO     | __main__:load_configuration:79 - Loading configuration from .env file...
-2025-09-28 17:07:25 | SUCCESS  | __main__:load_configuration:95 - Configuration loaded successfully.
-2025-09-28 17:07:25 | INFO     | __main__:search_and_print_issues:114 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC' using direct 'requests' call.
-2025-09-28 17:07:26 | INFO     | __main__:search_and_print_issues:141 - Found 50 issues, filtered down to 38 with .msg attachments.
+2025-09-28 18:39:28 | INFO     | __main__:load_configuration:81 - Loading configuration from .env file...
+2025-09-28 18:39:28 | SUCCESS  | __main__:load_configuration:100 - Configuration loaded successfully.
+2025-09-28 18:39:28 | INFO     | __main__:test_lm_studio_connection:118 - Testing connection to LM Studio at http://localhost:1234/v1...
+2025-09-28 18:39:28 | ERROR    | __main__:test_lm_studio_connection:133 - Failed to connect to LM Studio server. Is it running? Full error: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-09-28 18:39:28 | CRITICAL | __main__:test_lm_studio_connection:146 - Failed to connect to LM Studio server. Is it running? Error: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-09-28 18:40:49 | INFO     | __main__:load_configuration:81 - Loading configuration from .env file...
+2025-09-28 18:40:49 | SUCCESS  | __main__:load_configuration:100 - Configuration loaded successfully.
+2025-09-28 18:40:49 | INFO     | __main__:test_lm_studio_connection:118 - Testing connection to LM Studio at http://localhost:1234/v1...
+2025-09-28 18:40:51 | DEBUG    | __main__:test_lm_studio_connection:127 - Found models on LM Studio server: ['openai/gpt-oss-20b', 'text-embedding-nomic-embed-text-v1.5']
+2025-09-28 18:40:51 | SUCCESS  | __main__:test_lm_studio_connection:129 - LM Studio connection successful.
+2025-09-28 18:40:51 | INFO     | __main__:process_issues:229 - Searching for issues with JQL: 'issuetype = "Support Request" ORDER BY created DESC'...
+2025-09-28 18:40:53 | INFO     | __main__:process_issues:257 - Found 50 issues, filtered down to 38 with .msg attachments.
+2025-09-28 18:40:53 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:40:57 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:40:57 | INFO     | __main__:process_issues:286 - Downloading attachment: RE Can I Tag Along on Your Next Interdimensional Adventure.msg
+2025-09-28 18:40:59 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmprr0une0d.msg
+2025-09-28 18:41:00 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:41:14 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:41:14 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:41:25 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:41:25 | INFO     | __main__:process_issues:286 - Downloading attachment: RE Can I Tag Along on Your Next Interdimensional Adventure.msg
+2025-09-28 18:41:27 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp3r29frsr.msg
+2025-09-28 18:41:27 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:41:39 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:41:39 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:41:54 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:41:54 | INFO     | __main__:process_issues:286 - Downloading attachment: RE Can I Tag Along on Your Next Interdimensional Adventure.msg
+2025-09-28 18:41:57 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpowwhdnrw.msg
+2025-09-28 18:41:57 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:42:13 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:42:13 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:42:17 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:42:17 | INFO     | __main__:process_issues:286 - Downloading attachment: RE Can I Tag Along on Your Next Interdimensional Adventure.msg
+2025-09-28 18:42:19 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpnh78nr_y.msg
+2025-09-28 18:42:19 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:42:29 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:42:29 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:42:34 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:42:34 | INFO     | __main__:process_issues:286 - Downloading attachment: RE Can I Tag Along on Your Next Interdimensional Adventure.msg
+2025-09-28 18:42:36 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmprkgijprj.msg
+2025-09-28 18:42:36 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:42:52 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:42:52 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:42:55 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:42:55 | INFO     | __main__:process_issues:286 - Downloading attachment: RE SR#  20254099797.msg
+2025-09-28 18:42:57 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp0iuc4wbd.msg
+2025-09-28 18:42:57 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:43:16 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:43:16 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:43:35 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:43:35 | INFO     | __main__:process_issues:286 - Downloading attachment: RE SR 20254097610 Corrupted Package - Corrupt UCC Image.msg
+2025-09-28 18:43:38 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpi639t7md.msg
+2025-09-28 18:43:38 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:43:50 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:43:50 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:44:11 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:44:11 | INFO     | __main__:process_issues:286 - Downloading attachment: RE SR 20254099864 Corrupt Package.msg
+2025-09-28 18:44:13 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp0t7_hkky.msg
+2025-09-28 18:44:13 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:44:26 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:44:26 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:44:43 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:44:43 | INFO     | __main__:process_issues:286 - Downloading attachment: RE SR 20254097610 Corrupted Package.msg
+2025-09-28 18:44:45 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpal0c1lt1.msg
+2025-09-28 18:44:45 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:45:00 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:45:00 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:45:06 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:45:06 | INFO     | __main__:process_issues:286 - Downloading attachment: RE 20254076926 - SR Keeps Going Into Error Handler.msg
+2025-09-28 18:45:08 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpl7l6jpww.msg
+2025-09-28 18:45:08 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:45:18 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:45:18 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:45:25 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:45:25 | INFO     | __main__:process_issues:286 - Downloading attachment: RE SR# 20254068338.msg
+2025-09-28 18:45:27 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpfk5g20qt.msg
+2025-09-28 18:45:27 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:45:38 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:45:38 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:45:58 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:45:58 | INFO     | __main__:process_issues:286 - Downloading attachment: RE SR number 20254093427 -Distribution Error .msg
+2025-09-28 18:46:01 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp9wcnu8_8.msg
+2025-09-28 18:46:01 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:46:15 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:46:15 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:46:27 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:46:27 | INFO     | __main__:process_issues:286 - Downloading attachment: RE 4234085 - TACTYC INC..msg
+2025-09-28 18:46:29 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpdet3ku9_.msg
+2025-09-28 18:46:29 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:46:39 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:46:39 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:46:51 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:46:51 | INFO     | __main__:process_issues:286 - Downloading attachment: RE 20254083943 - please generate package - Egress Large UCC.msg
+2025-09-28 18:46:53 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpk9c3wjnq.msg
+2025-09-28 18:46:53 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:47:06 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:47:06 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:47:15 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:47:15 | INFO     | __main__:process_issues:286 - Downloading attachment: Delete SR 20253921571 Cancellation.msg
+2025-09-28 18:47:18 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp92lqj900.msg
+2025-09-28 18:47:18 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:47:30 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:47:30 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:47:34 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:47:34 | INFO     | __main__:process_issues:286 - Downloading attachment: SR 20251038571 - Incorrect File Number.msg
+2025-09-28 18:47:36 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpiyopmqn6.msg
+2025-09-28 18:47:36 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:47:44 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:47:44 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:47:53 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:47:53 | INFO     | __main__:process_issues:286 - Downloading attachment: FW CERTIFICATION PAGE NEEDS CORRECTED -- SR 20254062186.msg
+2025-09-28 18:47:55 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp04apjgl4.msg
+2025-09-28 18:47:55 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:48:17 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:48:17 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:48:29 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:48:29 | INFO     | __main__:process_issues:286 - Downloading attachment: SR 20254077708.msg
+2025-09-28 18:48:31 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp_qgs5vyu.msg
+2025-09-28 18:48:31 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:48:45 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:48:45 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:48:55 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:48:55 | INFO     | __main__:process_issues:286 - Downloading attachment: FW Merger -DCIS ERROR on MERGER 20254020788 .msg
+2025-09-28 18:48:57 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp604yv89n.msg
+2025-09-28 18:48:57 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:49:07 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:49:07 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:49:12 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:49:12 | INFO     | __main__:process_issues:286 - Downloading attachment: FW SR 20254079486 - Distribution Error .msg
+2025-09-28 18:49:14 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpfkqa9qjx.msg
+2025-09-28 18:49:14 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:49:22 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:49:22 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:49:30 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:49:30 | INFO     | __main__:process_issues:286 - Downloading attachment: FW NINEONESIX SYSTEMS INC. - 2944403.msg
+2025-09-28 18:49:33 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpib39_v3n.msg
+2025-09-28 18:49:33 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:49:43 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:49:43 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:49:54 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:49:54 | INFO     | __main__:process_issues:286 - Downloading attachment: 10251261 - Correct Status of RSE.msg
+2025-09-28 18:49:56 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpak46_68e.msg
+2025-09-28 18:49:56 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:50:06 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:50:06 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:50:14 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:50:14 | INFO     | __main__:process_issues:286 - Downloading attachment: FW PLEASE GENERATE PACKAGE FOR 20254067122 - Egress Large UCC.msg
+2025-09-28 18:50:16 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpd23z9l39.msg
+2025-09-28 18:50:16 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:50:25 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:50:25 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:50:35 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:50:35 | INFO     | __main__:process_issues:286 - Downloading attachment: FW Filing Issues .msg
+2025-09-28 18:50:37 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpx2uwc0rw.msg
+2025-09-28 18:50:38 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:51:02 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:51:02 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:51:07 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:51:07 | INFO     | __main__:process_issues:286 - Downloading attachment: FW PLEASE GENERATE PACKAGE FOR SR 20254064717 .msg
+2025-09-28 18:51:09 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpcelfb8xo.msg
+2025-09-28 18:51:09 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:51:19 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:51:19 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:51:23 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:51:23 | INFO     | __main__:process_issues:286 - Downloading attachment: RE Clippings LLC - File# 5279372 - CLOSING PENDING.msg
+2025-09-28 18:51:25 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpajwvv654.msg
+2025-09-28 18:51:25 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:51:52 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:51:52 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:52:12 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:52:12 | INFO     | __main__:process_issues:286 - Downloading attachment: FW 20254063178 - Distribution Error .msg
+2025-09-28 18:52:14 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpsjy8d__a.msg
+2025-09-28 18:52:14 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:52:26 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:52:26 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:52:32 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:52:32 | INFO     | __main__:process_issues:286 - Downloading attachment: Entity Monitor Files - Missing Entities.msg
+2025-09-28 18:52:34 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpc4p5lj0z.msg
+2025-09-28 18:52:34 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:52:43 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:52:43 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:53:00 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:53:00 | INFO     | __main__:process_issues:286 - Downloading attachment: RE Error Message When Paying Online.msg
+2025-09-28 18:53:02 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpa1hae5ki.msg
+2025-09-28 18:53:02 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:53:18 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:53:18 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:53:33 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:53:33 | INFO     | __main__:process_issues:286 - Downloading attachment: FW SR - 20253622233 - Incorrect Transaction Type.msg
+2025-09-28 18:53:36 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpsfcbarzb.msg
+2025-09-28 18:53:36 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:53:52 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:53:52 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:53:59 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:53:59 | INFO     | __main__:process_issues:286 - Downloading attachment: FW Please Generate Package.msg
+2025-09-28 18:54:01 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp2rbgq1qf.msg
+2025-09-28 18:54:01 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:54:07 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:54:07 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:54:12 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:54:12 | INFO     | __main__:process_issues:286 - Downloading attachment: CRITICAL SR 20254032410.msg
+2025-09-28 18:54:14 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpdqtlrefr.msg
+2025-09-28 18:54:14 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:54:19 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:54:19 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:54:34 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:54:34 | INFO     | __main__:process_issues:286 - Downloading attachment: RE PODVILLE MEDIA HOLDINGS INC. - 5814452.msg
+2025-09-28 18:54:36 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp1eh7uivo.msg
+2025-09-28 18:54:36 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:54:46 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:54:46 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:54:53 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:54:53 | INFO     | __main__:process_issues:286 - Downloading attachment: RE File #7937853.msg
+2025-09-28 18:54:56 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpi4gutcbp.msg
+2025-09-28 18:54:56 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:55:05 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:55:05 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:55:09 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:55:09 | INFO     | __main__:process_issues:286 - Downloading attachment: RE 20254023452 6991450.msg
+2025-09-28 18:55:11 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmp65sr44ts.msg
+2025-09-28 18:55:11 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:55:17 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:55:17 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:55:34 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:55:34 | INFO     | __main__:process_issues:286 - Downloading attachment: RE SR 20254020788 package error.msg
+2025-09-28 18:55:36 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpyt_e3de8.msg
+2025-09-28 18:55:36 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:55:43 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:55:43 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:55:48 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:55:48 | INFO     | __main__:process_issues:286 - Downloading attachment: RE 20254021245 Priority 2  - Oracle Error on Filing Screen .msg
+2025-09-28 18:55:50 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpg9am1068.msg
+2025-09-28 18:55:50 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:55:57 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:55:57 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:56:03 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
+2025-09-28 18:56:03 | INFO     | __main__:process_issues:286 - Downloading attachment: RE File 5880015 - Duplicate Payment.msg
+2025-09-28 18:56:05 | INFO     | __main__:process_issues:295 - Parsing email content from temporary file: C:\Users\Melvi\AppData\Local\Temp\tmpjhrx2o2z.msg
+2025-09-28 18:56:05 | INFO     | __main__:get_summary_from_lm_studio:193 - Generating summary with model 'openai/gpt-oss-20b'...
+2025-09-28 18:56:10 | SUCCESS  | __main__:get_summary_from_lm_studio:207 - Successfully generated summary.
