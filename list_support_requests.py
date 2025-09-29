@@ -8,7 +8,7 @@ instance, and prints the results to the console.
 Core Features:
 - Securely loads credentials for Jira and settings for an OpenAI-compatible API.
 - Tests the connection to the local AI model server before proceeding.
-- Fetches the 50 most recent support requests.
+- Fetches the 10 most recent support requests.
 - Filters issues to find those with .msg attachments.
 - For each filtered issue, generates a concise summary of its description using a local AI model.
 - Displays the results in a clean, readable format using rich panels.
@@ -175,31 +175,40 @@ def get_description_text(description_field: dict) -> str:
         return "No description available."
 
 
-def get_summary_from_lm_studio(client: OpenAI, model: str, description: str) -> str:
+def get_summary_from_lm_studio(
+    client: OpenAI, model: str, prompt_template_path: str, prompt_data: dict
+) -> str:
     """
-    Generates a summary of a Jira issue description using the local AI model.
+    Generates a summary by formatting a prompt template with provided data.
 
     Args:
         client: An authenticated OpenAI client.
         model: The model name to use for the completion.
-        description: The Jira issue description text.
+        prompt_template_path: The file path to the prompt template.
+        prompt_data: A dictionary with data to format the prompt template.
 
     Returns:
         The AI-generated summary as a string, or an error message.
     """
-    if not description or not description.strip():
-        return "No text provided to summarize."
+    if not all(prompt_data.values()):
+        return "Missing data for prompt generation."
+
+    try:
+        with open(prompt_template_path, "r", encoding="utf-8") as f:
+            prompt_template = f.read()
+    except FileNotFoundError:
+        error_msg = f"Prompt template file not found at: {prompt_template_path}"
+        logger.critical(error_msg)
+        return f"Error: {error_msg}"
+
+    prompt = prompt_template.format(**prompt_data)
 
     logger.info(f"Generating summary with model '{model}'...")
     try:
         completion = client.chat.completions.create(
             model=model,
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are Melvin Tucker, an expert technical support analyst. Your task is to provide a concise, narrative summary of the following text, speaking in the first person as if you are explaining your findings.",
-                },
-                {"role": "user", "content": description},
+                {"role": "user", "content": prompt},
             ],
             temperature=0.7,
         )
@@ -233,7 +242,7 @@ def process_issues(config: dict, lm_client: OpenAI) -> list[dict]:
     headers = {"Accept": "application/json", "Content-Type": "application/json"}
     payload = {
         "jql": config["jql_query"],
-        "maxResults": 50,
+        "maxResults": 10,
         "fields": ["summary", "attachment", "description"],
     }
 
@@ -270,12 +279,15 @@ def process_issues(config: dict, lm_client: OpenAI) -> list[dict]:
             summary_title = fields.get("summary", "No summary")
             description = get_description_text(fields.get("description"))
 
+            # Step 1: Generate description summary
             desc_summary = get_summary_from_lm_studio(
                 client=lm_client,
                 model=config["lm_studio_model"],
-                description=description,
+                prompt_template_path="prompt_templates/description_summary_prompt.txt",
+                prompt_data={"text_to_summarize": description},
             )
 
+            # Step 2: Generate email summary
             email_summary = "Could not process email attachment."
             attachment_meta = issue['msg_attachment']
             attachment_url = attachment_meta.get("content")
@@ -287,7 +299,6 @@ def process_issues(config: dict, lm_client: OpenAI) -> list[dict]:
                     att_response = requests.get(attachment_url, auth=auth, timeout=30)
                     att_response.raise_for_status()
 
-                    # Create a temporary file but keep it closed so other processes can access it on Windows.
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".msg") as tmp:
                         tmp.write(att_response.content)
                         tmp_file_path = tmp.name
@@ -301,7 +312,8 @@ def process_issues(config: dict, lm_client: OpenAI) -> list[dict]:
                         email_summary = get_summary_from_lm_studio(
                             client=lm_client,
                             model=config["lm_studio_model"],
-                            description=email_body,
+                            prompt_template_path="prompt_templates/email_summary_prompt.txt",
+                            prompt_data={"text_to_summarize": email_body},
                         )
                     finally:
                         if msg and hasattr(msg, 'close'):
@@ -316,12 +328,24 @@ def process_issues(config: dict, lm_client: OpenAI) -> list[dict]:
                     # Manually clean up the temporary file
                     if tmp_file_path and os.path.exists(tmp_file_path):
                         os.remove(tmp_file_path)
+
+            # Step 3: Generate comprehensive overview
+            comprehensive_summary = get_summary_from_lm_studio(
+                client=lm_client,
+                model=config["lm_studio_model"],
+                prompt_template_path="prompt_templates/comprehensive_summary_prompt.txt",
+                prompt_data={
+                    "description_summary": desc_summary,
+                    "email_summary": email_summary,
+                },
+            )
             
             processed_data.append({
                 "key": key,
                 "title": summary_title,
                 "desc_summary": desc_summary,
                 "email_summary": email_summary,
+                "comprehensive_summary": comprehensive_summary,
             })
 
     except requests.exceptions.HTTPError as e:
@@ -358,7 +382,9 @@ def main():
             summary_text.append("AI Summary (Description): ", style="cyan")
             summary_text.append(f"{issue_data['desc_summary']}\n", style="italic")
             summary_text.append("AI Summary (Email): ", style="cyan")
-            summary_text.append(issue_data['email_summary'], style="italic")
+            summary_text.append(f"{issue_data['email_summary']}\n", style="italic")
+            summary_text.append("Comprehensive Overview: ", style="bold green")
+            summary_text.append(issue_data['comprehensive_summary'], style="italic")
             console.print(Panel(summary_text, title=title, border_style="green", expand=False))
 
     except (EnvironmentError, ConnectionError) as e:

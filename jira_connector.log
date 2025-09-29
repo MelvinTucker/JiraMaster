@@ -1,0 +1,12 @@
+2025-09-28 19:09:09,587 INFO: Loading environment variables
+2025-09-28 19:09:09,588 INFO: Attempting to connect to Jira server at https://stateofdelaware.atlassian.net
+2025-09-28 19:09:10,815 INFO: Connection successful.
+2025-09-28 19:09:11,454 INFO: HTTP Request: GET http://127.0.0.1:1234/v1/models "HTTP/1.1 200 OK"
+2025-09-28 19:09:19,281 INFO: HTTP Request: POST http://127.0.0.1:1234/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-28 19:09:21,170 INFO: Stream "__substg1.0_007D001F" was requested but could not be found. Returning `None`.
+2025-09-28 19:09:21,170 INFO: Header is empty or was not found. Header will be generated from other streams.
+2025-09-28 19:09:21,170 INFO: Stream "__substg1.0_0C1A001F" was requested but could not be found. Returning `None`.
+2025-09-28 19:09:21,170 INFO: Stream "__substg1.0_5D01001F" was requested but could not be found. Returning `None`.
+2025-09-28 19:09:21,171 INFO: Stream "__substg1.0_1035001F" was requested but could not be found. Returning `None`.
+2025-09-28 19:09:39,200 INFO: HTTP Request: POST http://127.0.0.1:1234/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-28 19:10:11,686 INFO: HTTP Request: POST http://127.0.0.1:1234/v1/chat/completions "HTTP/1.1 200 OK"
